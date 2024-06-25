@@ -4,47 +4,6 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-(function polyfill() {
-  const relList = document.createElement("link").relList;
-  if (relList && relList.supports && relList.supports("modulepreload")) {
-    return;
-  }
-  for (const link of document.querySelectorAll('link[rel="modulepreload"]')) {
-    processPreload(link);
-  }
-  new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type !== "childList") {
-        continue;
-      }
-      for (const node of mutation.addedNodes) {
-        if (node.tagName === "LINK" && node.rel === "modulepreload")
-          processPreload(node);
-      }
-    }
-  }).observe(document, { childList: true, subtree: true });
-  function getFetchOpts(link) {
-    const fetchOpts = {};
-    if (link.integrity)
-      fetchOpts.integrity = link.integrity;
-    if (link.referrerPolicy)
-      fetchOpts.referrerPolicy = link.referrerPolicy;
-    if (link.crossOrigin === "use-credentials")
-      fetchOpts.credentials = "include";
-    else if (link.crossOrigin === "anonymous")
-      fetchOpts.credentials = "omit";
-    else
-      fetchOpts.credentials = "same-origin";
-    return fetchOpts;
-  }
-  function processPreload(link) {
-    if (link.ep)
-      return;
-    link.ep = true;
-    const fetchOpts = getFetchOpts(link);
-    fetch(link.href, fetchOpts);
-  }
-})();
 function isObject$3(obj) {
   return obj !== null && typeof obj === "object" && "constructor" in obj && obj.constructor === Object;
 }
@@ -891,17 +850,17 @@ function now() {
 }
 function getComputedStyle$1(el) {
   const window2 = getWindow();
-  let style2;
+  let style;
   if (window2.getComputedStyle) {
-    style2 = window2.getComputedStyle(el, null);
+    style = window2.getComputedStyle(el, null);
   }
-  if (!style2 && el.currentStyle) {
-    style2 = el.currentStyle;
+  if (!style && el.currentStyle) {
+    style = el.currentStyle;
   }
-  if (!style2) {
-    style2 = el.style;
+  if (!style) {
+    style = el.style;
   }
-  return style2;
+  return style;
 }
 function getTranslate(el, axis = "x") {
   const window2 = getWindow();
@@ -1127,7 +1086,7 @@ function Resize({
   emit
 }) {
   const window2 = getWindow();
-  let observer2 = null;
+  let observer = null;
   let animationFrame = null;
   const resizeHandler = () => {
     if (!swiper || swiper.destroyed || !swiper.initialized)
@@ -1138,7 +1097,7 @@ function Resize({
   const createObserver = () => {
     if (!swiper || swiper.destroyed || !swiper.initialized)
       return;
-    observer2 = new ResizeObserver((entries) => {
+    observer = new ResizeObserver((entries) => {
       animationFrame = window2.requestAnimationFrame(() => {
         const {
           width,
@@ -1161,15 +1120,15 @@ function Resize({
         }
       });
     });
-    observer2.observe(swiper.el);
+    observer.observe(swiper.el);
   };
   const removeObserver = () => {
     if (animationFrame) {
       window2.cancelAnimationFrame(animationFrame);
     }
-    if (observer2 && observer2.unobserve && swiper.el) {
-      observer2.unobserve(swiper.el);
-      observer2 = null;
+    if (observer && observer.unobserve && swiper.el) {
+      observer.unobserve(swiper.el);
+      observer = null;
     }
   };
   const orientationChangeHandler = () => {
@@ -1201,7 +1160,7 @@ function Observer$1({
   const window2 = getWindow();
   const attach = (target, options = {}) => {
     const ObserverFunc = window2.MutationObserver || window2.WebkitMutationObserver;
-    const observer2 = new ObserverFunc((mutations) => {
+    const observer = new ObserverFunc((mutations) => {
       if (mutations.length === 1) {
         emit("observerUpdate", mutations[0]);
         return;
@@ -1215,12 +1174,12 @@ function Observer$1({
         window2.setTimeout(observerUpdate, 0);
       }
     });
-    observer2.observe(target, {
+    observer.observe(target, {
       attributes: typeof options.attributes === "undefined" ? true : options.attributes,
       childList: typeof options.childList === "undefined" ? true : options.childList,
       characterData: typeof options.characterData === "undefined" ? true : options.characterData
     });
-    observers.push(observer2);
+    observers.push(observer);
   };
   const init4 = () => {
     if (!swiper.params.observer)
@@ -1239,8 +1198,8 @@ function Observer$1({
     });
   };
   const destroy = () => {
-    observers.forEach((observer2) => {
-      observer2.disconnect();
+    observers.forEach((observer) => {
+      observer.disconnect();
     });
     observers.splice(0, observers.length);
   };
@@ -5131,7 +5090,6 @@ function freeMode({
 const navigation_min = "";
 const pagination_min = "";
 const swiperBundle = "";
-const style = "";
 function bind(fn, thisArg) {
   return function wrap3() {
     return fn.apply(thisArg, arguments);
@@ -16112,17 +16070,17 @@ var Timeline = /* @__PURE__ */ function(_Animation) {
   };
   _proto2.tweenTo = function tweenTo(position, vars) {
     vars = vars || {};
-    var tl2 = this, endTime = _parsePosition$1(tl2, position), _vars = vars, startAt = _vars.startAt, _onStart = _vars.onStart, onStartParams = _vars.onStartParams, immediateRender = _vars.immediateRender, initted, tween = Tween.to(tl2, _setDefaults$1({
+    var tl = this, endTime = _parsePosition$1(tl, position), _vars = vars, startAt = _vars.startAt, _onStart = _vars.onStart, onStartParams = _vars.onStartParams, immediateRender = _vars.immediateRender, initted, tween = Tween.to(tl, _setDefaults$1({
       ease: vars.ease || "none",
       lazy: false,
       immediateRender: false,
       time: endTime,
       overwrite: "auto",
-      duration: vars.duration || Math.abs((endTime - (startAt && "time" in startAt ? startAt.time : tl2._time)) / tl2.timeScale()) || _tinyNum,
+      duration: vars.duration || Math.abs((endTime - (startAt && "time" in startAt ? startAt.time : tl._time)) / tl.timeScale()) || _tinyNum,
       onStart: function onStart() {
-        tl2.pause();
+        tl.pause();
         if (!initted) {
-          var duration = vars.duration || Math.abs((endTime - (startAt && "time" in startAt ? startAt.time : tl2._time)) / tl2.timeScale());
+          var duration = vars.duration || Math.abs((endTime - (startAt && "time" in startAt ? startAt.time : tl._time)) / tl.timeScale());
           tween._dur !== duration && _setDuration(tween, duration, 0, 1).render(tween._time, true, true);
           initted = 1;
         }
@@ -16352,8 +16310,8 @@ var _addComplexStringPropTween = function _addComplexStringPropTween2(target, pr
   }
   return plugin;
 }, _overwritingTween, _forceAllPropTweens, _initTween = function _initTween2(tween, time, tTime) {
-  var vars = tween.vars, ease = vars.ease, startAt = vars.startAt, immediateRender = vars.immediateRender, lazy = vars.lazy, onUpdate = vars.onUpdate, runBackwards = vars.runBackwards, yoyoEase = vars.yoyoEase, keyframes = vars.keyframes, autoRevert = vars.autoRevert, dur = tween._dur, prevStartAt = tween._startAt, targets = tween._targets, parent2 = tween.parent, fullTargets = parent2 && parent2.data === "nested" ? parent2.vars.targets : targets, autoOverwrite = tween._overwrite === "auto" && !_suppressOverwrites$1, tl2 = tween.timeline, cleanVars, i, p, pt, target, hasPriority, gsData, harness, plugin, ptLookup, index2, harnessVars, overwritten;
-  tl2 && (!keyframes || !ease) && (ease = "none");
+  var vars = tween.vars, ease = vars.ease, startAt = vars.startAt, immediateRender = vars.immediateRender, lazy = vars.lazy, onUpdate = vars.onUpdate, runBackwards = vars.runBackwards, yoyoEase = vars.yoyoEase, keyframes = vars.keyframes, autoRevert = vars.autoRevert, dur = tween._dur, prevStartAt = tween._startAt, targets = tween._targets, parent2 = tween.parent, fullTargets = parent2 && parent2.data === "nested" ? parent2.vars.targets : targets, autoOverwrite = tween._overwrite === "auto" && !_suppressOverwrites$1, tl = tween.timeline, cleanVars, i, p, pt, target, hasPriority, gsData, harness, plugin, ptLookup, index2, harnessVars, overwritten;
+  tl && (!keyframes || !ease) && (ease = "none");
   tween._ease = _parseEase(ease, _defaults$1.ease);
   tween._yEase = yoyoEase ? _invertEase(_parseEase(yoyoEase === true ? ease : yoyoEase, _defaults$1.ease)) : 0;
   if (yoyoEase && tween._yoyo && !tween._repeat) {
@@ -16361,8 +16319,8 @@ var _addComplexStringPropTween = function _addComplexStringPropTween2(target, pr
     tween._yEase = tween._ease;
     tween._ease = yoyoEase;
   }
-  tween._from = !tl2 && !!vars.runBackwards;
-  if (!tl2 || keyframes && !vars.stagger) {
+  tween._from = !tl && !!vars.runBackwards;
+  if (!tl || keyframes && !vars.stagger) {
     harness = targets[0] ? _getCache(targets[0]).harness : 0;
     harnessVars = harness && vars[harness.prop];
     cleanVars = _copyExcluding(vars, _reservedProps);
@@ -16459,7 +16417,7 @@ var _addComplexStringPropTween = function _addComplexStringPropTween2(target, pr
   }
   tween._onUpdate = onUpdate;
   tween._initted = (!tween._op || tween._pt) && !overwritten;
-  keyframes && time <= 0 && tl2.render(_bigNum$1, true, true);
+  keyframes && time <= 0 && tl.render(_bigNum$1, true, true);
 }, _updatePropTweens = function _updatePropTweens2(tween, property, value, start, startIsRelative, ratio, time, skipRecursion) {
   var ptCache = (tween._pt && tween._ptCache || (tween._ptCache = {}))[property], pt, rootPT, lookup, i;
   if (!ptCache) {
@@ -16546,20 +16504,20 @@ var Tween = /* @__PURE__ */ function(_Animation2) {
       position = null;
     }
     _this3 = _Animation2.call(this, skipInherit ? vars : _inheritDefaults(vars)) || this;
-    var _this3$vars = _this3.vars, duration = _this3$vars.duration, delay = _this3$vars.delay, immediateRender = _this3$vars.immediateRender, stagger = _this3$vars.stagger, overwrite = _this3$vars.overwrite, keyframes = _this3$vars.keyframes, defaults3 = _this3$vars.defaults, scrollTrigger = _this3$vars.scrollTrigger, yoyoEase = _this3$vars.yoyoEase, parent2 = vars.parent || _globalTimeline, parsedTargets = (_isArray(targets) || _isTypedArray(targets) ? _isNumber$1(targets[0]) : "length" in vars) ? [targets] : toArray(targets), tl2, i, copy, l, p, curTarget, staggerFunc, staggerVarsToMerge;
+    var _this3$vars = _this3.vars, duration = _this3$vars.duration, delay = _this3$vars.delay, immediateRender = _this3$vars.immediateRender, stagger = _this3$vars.stagger, overwrite = _this3$vars.overwrite, keyframes = _this3$vars.keyframes, defaults3 = _this3$vars.defaults, scrollTrigger = _this3$vars.scrollTrigger, yoyoEase = _this3$vars.yoyoEase, parent2 = vars.parent || _globalTimeline, parsedTargets = (_isArray(targets) || _isTypedArray(targets) ? _isNumber$1(targets[0]) : "length" in vars) ? [targets] : toArray(targets), tl, i, copy, l, p, curTarget, staggerFunc, staggerVarsToMerge;
     _this3._targets = parsedTargets.length ? _harness(parsedTargets) : _warn("GSAP target " + targets + " not found. https://gsap.com", !_config.nullTargetWarn) || [];
     _this3._ptLookup = [];
     _this3._overwrite = overwrite;
     if (keyframes || stagger || _isFuncOrString(duration) || _isFuncOrString(delay)) {
       vars = _this3.vars;
-      tl2 = _this3.timeline = new Timeline({
+      tl = _this3.timeline = new Timeline({
         data: "nested",
         defaults: defaults3 || {},
         targets: parent2 && parent2.data === "nested" ? parent2.vars.targets : parsedTargets
       });
-      tl2.kill();
-      tl2.parent = tl2._dp = _assertThisInitialized(_this3);
-      tl2._start = 0;
+      tl.kill();
+      tl.parent = tl._dp = _assertThisInitialized(_this3);
+      tl._start = 0;
       if (stagger || _isFuncOrString(duration) || _isFuncOrString(delay)) {
         l = parsedTargets.length;
         staggerFunc = stagger && distribute(stagger);
@@ -16584,21 +16542,21 @@ var Tween = /* @__PURE__ */ function(_Animation2) {
             _this3._start += delay;
             copy.delay = 0;
           }
-          tl2.to(curTarget, copy, staggerFunc ? staggerFunc(i, curTarget, parsedTargets) : 0);
-          tl2._ease = _easeMap.none;
+          tl.to(curTarget, copy, staggerFunc ? staggerFunc(i, curTarget, parsedTargets) : 0);
+          tl._ease = _easeMap.none;
         }
-        tl2.duration() ? duration = delay = 0 : _this3.timeline = 0;
+        tl.duration() ? duration = delay = 0 : _this3.timeline = 0;
       } else if (keyframes) {
-        _inheritDefaults(_setDefaults$1(tl2.vars.defaults, {
+        _inheritDefaults(_setDefaults$1(tl.vars.defaults, {
           ease: "none"
         }));
-        tl2._ease = _parseEase(keyframes.ease || vars.ease || "none");
+        tl._ease = _parseEase(keyframes.ease || vars.ease || "none");
         var time = 0, a, kf, v;
         if (_isArray(keyframes)) {
           keyframes.forEach(function(frame) {
-            return tl2.to(parsedTargets, frame, ">");
+            return tl.to(parsedTargets, frame, ">");
           });
-          tl2.duration();
+          tl.duration();
         } else {
           copy = {};
           for (p in keyframes) {
@@ -16616,16 +16574,16 @@ var Tween = /* @__PURE__ */ function(_Animation2) {
                 duration: (kf.t - (i ? a[i - 1].t : 0)) / 100 * duration
               };
               v[p] = kf.v;
-              tl2.to(parsedTargets, v, time);
+              tl.to(parsedTargets, v, time);
               time += v.duration;
             }
           }
-          tl2.duration() < duration && tl2.to({}, {
-            duration: duration - tl2.duration()
+          tl.duration() < duration && tl.to({}, {
+            duration: duration - tl.duration()
           });
         }
       }
-      duration || _this3.duration(duration = tl2.duration());
+      duration || _this3.duration(duration = tl.duration());
     } else {
       _this3.timeline = 0;
     }
@@ -16860,9 +16818,9 @@ _setDefaults$1(Tween.prototype, {
 });
 _forEachName("staggerTo,staggerFrom,staggerFromTo", function(name) {
   Tween[name] = function() {
-    var tl2 = new Timeline(), params = _slice.call(arguments, 0);
+    var tl = new Timeline(), params = _slice.call(arguments, 0);
     params.splice(name === "staggerFromTo" ? 5 : 4, 0, 0);
-    return tl2[name].apply(tl2, params);
+    return tl[name].apply(tl, params);
   };
 });
 var _setterPlain = function _setterPlain2(target, property, value) {
@@ -17235,8 +17193,8 @@ var _gsap = {
     (plugins || "").split(",").forEach(function(pluginName) {
       return pluginName && !_plugins[pluginName] && !_globals[pluginName] && _warn(name + " effect requires " + pluginName + " plugin.");
     });
-    _effects[name] = function(targets, vars, tl2) {
-      return effect(toArray(targets), _setDefaults$1(vars || {}, defaults3), tl2);
+    _effects[name] = function(targets, vars, tl) {
+      return effect(toArray(targets), _setDefaults$1(vars || {}, defaults3), tl);
     };
     if (extendTimeline) {
       Timeline.prototype[name] = function(targets, vars, position) {
@@ -17257,21 +17215,21 @@ var _gsap = {
     if (vars === void 0) {
       vars = {};
     }
-    var tl2 = new Timeline(vars), child, next2;
-    tl2.smoothChildTiming = _isNotFalse(vars.smoothChildTiming);
-    _globalTimeline.remove(tl2);
-    tl2._dp = 0;
-    tl2._time = tl2._tTime = _globalTimeline._time;
+    var tl = new Timeline(vars), child, next2;
+    tl.smoothChildTiming = _isNotFalse(vars.smoothChildTiming);
+    _globalTimeline.remove(tl);
+    tl._dp = 0;
+    tl._time = tl._tTime = _globalTimeline._time;
     child = _globalTimeline._first;
     while (child) {
       next2 = child._next;
       if (includeDelayedCalls || !(!child._dur && child instanceof Tween && child.vars.onComplete === child._targets[0])) {
-        _addToTimeline(tl2, child, child._start - child._delay);
+        _addToTimeline(tl, child, child._start - child._delay);
       }
       child = next2;
     }
-    _addToTimeline(_globalTimeline, tl2, 0);
-    return tl2;
+    _addToTimeline(_globalTimeline, tl, 0);
+    return tl;
   },
   context: function context(func, scope) {
     return func ? new Context(func, scope) : _context$2;
@@ -17496,8 +17454,8 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
   cache2.renderTransform(ratio, cache2);
 }, _transformProp$1 = "transform", _transformOriginProp = _transformProp$1 + "Origin", _saveStyle = function _saveStyle2(property, isNotCSS) {
   var _this = this;
-  var target = this.target, style2 = target.style, cache2 = target._gsap;
-  if (property in _transformProps && style2) {
+  var target = this.target, style = target.style, cache2 = target._gsap;
+  if (property in _transformProps && style) {
     this.tfm = this.tfm || {};
     if (property !== "transform") {
       property = _propertyAliases[property] || property;
@@ -17519,17 +17477,17 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
     }
     property = _transformProp$1;
   }
-  (style2 || isNotCSS) && this.props.push(property, isNotCSS, style2[property]);
-}, _removeIndependentTransforms = function _removeIndependentTransforms2(style2) {
-  if (style2.translate) {
-    style2.removeProperty("translate");
-    style2.removeProperty("scale");
-    style2.removeProperty("rotate");
+  (style || isNotCSS) && this.props.push(property, isNotCSS, style[property]);
+}, _removeIndependentTransforms = function _removeIndependentTransforms2(style) {
+  if (style.translate) {
+    style.removeProperty("translate");
+    style.removeProperty("scale");
+    style.removeProperty("rotate");
   }
 }, _revertStyle = function _revertStyle2() {
-  var props = this.props, target = this.target, style2 = target.style, cache2 = target._gsap, i, p;
+  var props = this.props, target = this.target, style = target.style, cache2 = target._gsap, i, p;
   for (i = 0; i < props.length; i += 3) {
-    props[i + 1] ? target[props[i]] = props[i + 2] : props[i + 2] ? style2[props[i]] = props[i + 2] : style2.removeProperty(props[i].substr(0, 2) === "--" ? props[i] : props[i].replace(_capsExp$1, "-$1").toLowerCase());
+    props[i + 1] ? target[props[i]] = props[i + 2] : props[i + 2] ? style[props[i]] = props[i + 2] : style.removeProperty(props[i].substr(0, 2) === "--" ? props[i] : props[i].replace(_capsExp$1, "-$1").toLowerCase());
   }
   if (this.tfm) {
     for (p in this.tfm) {
@@ -17540,10 +17498,10 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
       target.setAttribute("data-svg-origin", this.svgo || "");
     }
     i = _reverting();
-    if ((!i || !i.isStart) && !style2[_transformProp$1]) {
-      _removeIndependentTransforms(style2);
-      if (cache2.zOrigin && style2[_transformOriginProp]) {
-        style2[_transformOriginProp] += " " + cache2.zOrigin + "px";
+    if ((!i || !i.isStart) && !style[_transformProp$1]) {
+      _removeIndependentTransforms(style);
+      if (cache2.zOrigin && style[_transformOriginProp]) {
+        style[_transformOriginProp] += " " + cache2.zOrigin + "px";
         cache2.zOrigin = 0;
         cache2.renderTransform();
       }
@@ -17643,18 +17601,18 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
   return !!(e.getCTM && (!e.parentNode || e.ownerSVGElement) && _getBBox(e));
 }, _removeProperty = function _removeProperty2(target, property) {
   if (property) {
-    var style2 = target.style, first2Chars;
+    var style = target.style, first2Chars;
     if (property in _transformProps && property !== _transformOriginProp) {
       property = _transformProp$1;
     }
-    if (style2.removeProperty) {
+    if (style.removeProperty) {
       first2Chars = property.substr(0, 2);
       if (first2Chars === "ms" || property.substr(0, 6) === "webkit") {
         property = "-" + property;
       }
-      style2.removeProperty(first2Chars === "--" ? property : property.replace(_capsExp$1, "-$1").toLowerCase());
+      style.removeProperty(first2Chars === "--" ? property : property.replace(_capsExp$1, "-$1").toLowerCase());
     } else {
-      style2.removeAttribute(property);
+      style.removeAttribute(property);
     }
   }
 }, _addNonTweeningPT = function _addNonTweeningPT2(plugin, target, property, beginning, end, onlySetAtEnd) {
@@ -17672,7 +17630,7 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
   grid: 1,
   flex: 1
 }, _convertToUnit = function _convertToUnit2(target, property, value, unit) {
-  var curValue = parseFloat(value) || 0, curUnit = (value + "").trim().substr((curValue + "").length) || "px", style2 = _tempDiv.style, horizontal = _horizontalExp.test(property), isRootSVG = target.tagName.toLowerCase() === "svg", measureProperty = (isRootSVG ? "client" : "offset") + (horizontal ? "Width" : "Height"), amount = 100, toPixels = unit === "px", toPercent = unit === "%", px, parent2, cache2, isSVG;
+  var curValue = parseFloat(value) || 0, curUnit = (value + "").trim().substr((curValue + "").length) || "px", style = _tempDiv.style, horizontal = _horizontalExp.test(property), isRootSVG = target.tagName.toLowerCase() === "svg", measureProperty = (isRootSVG ? "client" : "offset") + (horizontal ? "Width" : "Height"), amount = 100, toPixels = unit === "px", toPercent = unit === "%", px, parent2, cache2, isSVG;
   if (unit === curUnit || !curValue || _nonConvertibleUnits[unit] || _nonConvertibleUnits[curUnit]) {
     return curValue;
   }
@@ -17682,7 +17640,7 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
     px = isSVG ? target.getBBox()[horizontal ? "width" : "height"] : target[measureProperty];
     return _round$1(toPercent ? curValue / px * amount : curValue / 100 * px);
   }
-  style2[horizontal ? "width" : "height"] = amount + (toPixels ? curUnit : unit);
+  style[horizontal ? "width" : "height"] = amount + (toPixels ? curUnit : unit);
   parent2 = ~property.indexOf("adius") || unit === "em" && target.appendChild && !isRootSVG ? target : target.parentNode;
   if (isSVG) {
     parent2 = (target.ownerSVGElement || {}).parentNode;
@@ -17700,12 +17658,12 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
       px = target[measureProperty];
       v ? target.style[property] = v : _removeProperty(target, property);
     } else {
-      (toPercent || curUnit === "%") && !_nonStandardLayouts[_getComputedProperty(parent2, "display")] && (style2.position = _getComputedProperty(target, "position"));
-      parent2 === target && (style2.position = "static");
+      (toPercent || curUnit === "%") && !_nonStandardLayouts[_getComputedProperty(parent2, "display")] && (style.position = _getComputedProperty(target, "position"));
+      parent2 === target && (style.position = "static");
       parent2.appendChild(_tempDiv);
       px = _tempDiv[measureProperty];
       parent2.removeChild(_tempDiv);
-      style2.position = "absolute";
+      style.position = "absolute";
     }
     if (horizontal && toPercent) {
       cache2 = _getCache(parent2);
@@ -17821,9 +17779,9 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
   return split.join(" ");
 }, _renderClearProps = function _renderClearProps2(ratio, data) {
   if (data.tween && data.tween._time === data.tween._dur) {
-    var target = data.t, style2 = target.style, props = data.u, cache2 = target._gsap, prop, clearTransforms, i;
+    var target = data.t, style = target.style, props = data.u, cache2 = target._gsap, prop, clearTransforms, i;
     if (props === "all" || props === true) {
-      style2.cssText = "";
+      style.cssText = "";
       clearTransforms = 1;
     } else {
       props = props.split(",");
@@ -17843,7 +17801,7 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
         cache2.svg && target.removeAttribute("transform");
         _parseTransform(target, 1);
         cache2.uncache = 1;
-        _removeIndependentTransforms(style2);
+        _removeIndependentTransforms(style);
       }
     }
   }
@@ -17927,14 +17885,14 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
   var matrixString = _getComputedProperty(target, _transformProp$1);
   return _isNullTransform(matrixString) ? _identity2DMatrix : matrixString.substr(7).match(_numExp).map(_round$1);
 }, _getMatrix = function _getMatrix2(target, force2D) {
-  var cache2 = target._gsap || _getCache(target), style2 = target.style, matrix = _getComputedTransformMatrixAsArray(target), parent2, nextSibling, temp, addedToDOM;
+  var cache2 = target._gsap || _getCache(target), style = target.style, matrix = _getComputedTransformMatrixAsArray(target), parent2, nextSibling, temp, addedToDOM;
   if (cache2.svg && target.getAttribute("transform")) {
     temp = target.transform.baseVal.consolidate().matrix;
     matrix = [temp.a, temp.b, temp.c, temp.d, temp.e, temp.f];
     return matrix.join(",") === "1,0,0,1,0,0" ? _identity2DMatrix : matrix;
   } else if (matrix === _identity2DMatrix && !target.offsetParent && target !== _docElement && !cache2.svg) {
-    temp = style2.display;
-    style2.display = "block";
+    temp = style.display;
+    style.display = "block";
     parent2 = target.parentNode;
     if (!parent2 || !target.offsetParent) {
       addedToDOM = 1;
@@ -17942,7 +17900,7 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
       _docElement.appendChild(target);
     }
     matrix = _getComputedTransformMatrixAsArray(target);
-    temp ? style2.display = temp : _removeProperty(target, "display");
+    temp ? style.display = temp : _removeProperty(target, "display");
     if (addedToDOM) {
       nextSibling ? parent2.insertBefore(target, nextSibling) : parent2 ? parent2.appendChild(target) : _docElement.removeChild(target);
     }
@@ -17986,15 +17944,15 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
   if ("x" in cache2 && !uncache && !cache2.uncache) {
     return cache2;
   }
-  var style2 = target.style, invertedScaleX = cache2.scaleX < 0, px = "px", deg = "deg", cs = getComputedStyle(target), origin = _getComputedProperty(target, _transformOriginProp) || "0", x, y, z, scaleX, scaleY, rotation, rotationX, rotationY, skewX, skewY, perspective, xOrigin, yOrigin, matrix, angle, cos, sin, a, b, c, d, a12, a22, t1, t2, t3, a13, a23, a33, a42, a43, a32;
+  var style = target.style, invertedScaleX = cache2.scaleX < 0, px = "px", deg = "deg", cs = getComputedStyle(target), origin = _getComputedProperty(target, _transformOriginProp) || "0", x, y, z, scaleX, scaleY, rotation, rotationX, rotationY, skewX, skewY, perspective, xOrigin, yOrigin, matrix, angle, cos, sin, a, b, c, d, a12, a22, t1, t2, t3, a13, a23, a33, a42, a43, a32;
   x = y = z = rotation = rotationX = rotationY = skewX = skewY = perspective = 0;
   scaleX = scaleY = 1;
   cache2.svg = !!(target.getCTM && _isSVG(target));
   if (cs.translate) {
     if (cs.translate !== "none" || cs.scale !== "none" || cs.rotate !== "none") {
-      style2[_transformProp$1] = (cs.translate !== "none" ? "translate3d(" + (cs.translate + " 0 0").split(" ").slice(0, 3).join(", ") + ") " : "") + (cs.rotate !== "none" ? "rotate(" + cs.rotate + ") " : "") + (cs.scale !== "none" ? "scale(" + cs.scale.split(" ").join(",") + ") " : "") + (cs[_transformProp$1] !== "none" ? cs[_transformProp$1] : "");
+      style[_transformProp$1] = (cs.translate !== "none" ? "translate3d(" + (cs.translate + " 0 0").split(" ").slice(0, 3).join(", ") + ") " : "") + (cs.rotate !== "none" ? "rotate(" + cs.rotate + ") " : "") + (cs.scale !== "none" ? "scale(" + cs.scale.split(" ").join(",") + ") " : "") + (cs[_transformProp$1] !== "none" ? cs[_transformProp$1] : "");
     }
-    style2.scale = style2.rotate = style2.translate = "none";
+    style.scale = style.rotate = style.translate = "none";
   }
   matrix = _getMatrix(target, cache2.svg);
   if (cache2.svg) {
@@ -18116,7 +18074,7 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
   cache2.skewY = skewY + deg;
   cache2.transformPerspective = perspective + px;
   if (cache2.zOrigin = parseFloat(origin.split(" ")[2]) || !uncache && cache2.zOrigin || 0) {
-    style2[_transformOriginProp] = _firstTwoOnly(origin);
+    style[_transformOriginProp] = _firstTwoOnly(origin);
   }
   cache2.xOffset = cache2.yOffset = 0;
   cache2.force3D = _config.force3D;
@@ -18250,19 +18208,19 @@ var _win$2, _doc$2, _docElement, _pluginInitted, _tempDiv, _recentSetterPlugin, 
   }
   return target;
 }, _addRawTransformPTs = function _addRawTransformPTs2(plugin, transforms, target) {
-  var startCache = _assign({}, target._gsap), exclude = "perspective,force3D,transformOrigin,svgOrigin", style2 = target.style, endCache, p, startValue, endValue, startNum, endNum, startUnit, endUnit;
+  var startCache = _assign({}, target._gsap), exclude = "perspective,force3D,transformOrigin,svgOrigin", style = target.style, endCache, p, startValue, endValue, startNum, endNum, startUnit, endUnit;
   if (startCache.svg) {
     startValue = target.getAttribute("transform");
     target.setAttribute("transform", "");
-    style2[_transformProp$1] = transforms;
+    style[_transformProp$1] = transforms;
     endCache = _parseTransform(target, 1);
     _removeProperty(target, _transformProp$1);
     target.setAttribute("transform", startValue);
   } else {
     startValue = getComputedStyle(target)[_transformProp$1];
-    style2[_transformProp$1] = transforms;
+    style[_transformProp$1] = transforms;
     endCache = _parseTransform(target, 1);
-    style2[_transformProp$1] = startValue;
+    style[_transformProp$1] = startValue;
   }
   for (p in _transformProps) {
     startValue = startCache[p];
@@ -18307,7 +18265,7 @@ var CSSPlugin = {
     return target.style && target.nodeType;
   },
   init: function init3(target, vars, tween, index2, targets) {
-    var props = this._props, style2 = target.style, startAt = tween.vars.startAt, startValue, endValue, endNum, startNum, type, specialProp, p, startUnit, endUnit, relative, isTransformRelated, transformPropTween, cache2, smooth, hasPriority, inlineProps;
+    var props = this._props, style = target.style, startAt = tween.vars.startAt, startValue, endValue, endNum, startNum, type, specialProp, p, startUnit, endUnit, relative, isTransformRelated, transformPropTween, cache2, smooth, hasPriority, inlineProps;
     _pluginInitted || _initCore$1();
     this.styles = this.styles || _getStyleSaver(target);
     inlineProps = this.styles.props;
@@ -18340,9 +18298,9 @@ var CSSPlugin = {
           endUnit = getUnit(endValue);
         }
         endUnit ? startUnit !== endUnit && (startValue = _convertToUnit(target, p, startValue, endUnit) + endUnit) : startUnit && (endValue += startUnit);
-        this.add(style2, "setProperty", startValue, endValue, index2, targets, 0, 0, p);
+        this.add(style, "setProperty", startValue, endValue, index2, targets, 0, 0, p);
         props.push(p);
-        inlineProps.push(p, 0, style2[p]);
+        inlineProps.push(p, 0, style[p]);
       } else if (type !== "undefined") {
         if (startAt && p in startAt) {
           startValue = typeof startAt[p] === "function" ? startAt[p].call(tween, index2, target, targets) : startAt[p];
@@ -18361,8 +18319,8 @@ var CSSPlugin = {
             if (startNum === 1 && _get(target, "visibility") === "hidden" && endNum) {
               startNum = 0;
             }
-            inlineProps.push("visibility", 0, style2.visibility);
-            _addNonTweeningPT(this, style2, "visibility", startNum ? "inherit" : "hidden", endNum ? "inherit" : "hidden", !endNum);
+            inlineProps.push("visibility", 0, style.visibility);
+            _addNonTweeningPT(this, style, "visibility", startNum ? "inherit" : "hidden", endNum ? "inherit" : "hidden", !endNum);
           }
           if (p !== "scale" && p !== "transform") {
             p = _propertyAliases[p];
@@ -18376,7 +18334,7 @@ var CSSPlugin = {
             cache2 = target._gsap;
             cache2.renderTransform && !vars.parseTransform || _parseTransform(target, vars.parseTransform);
             smooth = vars.smoothOrigin !== false && cache2.smooth;
-            transformPropTween = this._pt = new PropTween(this._pt, style2, _transformProp$1, 0, 1, cache2.renderTransform, cache2, 0, -1);
+            transformPropTween = this._pt = new PropTween(this._pt, style, _transformProp$1, 0, 1, cache2.renderTransform, cache2, 0, -1);
             transformPropTween.dep = 1;
           }
           if (p === "scale") {
@@ -18385,14 +18343,14 @@ var CSSPlugin = {
             props.push("scaleY", p);
             p += "X";
           } else if (p === "transformOrigin") {
-            inlineProps.push(_transformOriginProp, 0, style2[_transformOriginProp]);
+            inlineProps.push(_transformOriginProp, 0, style[_transformOriginProp]);
             endValue = _convertKeywordsToPercentages(endValue);
             if (cache2.svg) {
               _applySVGOrigin(target, endValue, 0, smooth, 0, this);
             } else {
               endUnit = parseFloat(endValue.split(" ")[2]) || 0;
               endUnit !== cache2.zOrigin && _addNonTweeningPT(this, cache2, "zOrigin", cache2.zOrigin, endUnit);
-              _addNonTweeningPT(this, style2, p, _firstTwoOnly(startValue), _firstTwoOnly(endValue));
+              _addNonTweeningPT(this, style, p, _firstTwoOnly(startValue), _firstTwoOnly(endValue));
             }
             continue;
           } else if (p === "svgOrigin") {
@@ -18411,21 +18369,21 @@ var CSSPlugin = {
             _addRawTransformPTs(this, endValue, target);
             continue;
           }
-        } else if (!(p in style2)) {
+        } else if (!(p in style)) {
           p = _checkPropPrefix(p) || p;
         }
-        if (isTransformRelated || (endNum || endNum === 0) && (startNum || startNum === 0) && !_complexExp.test(endValue) && p in style2) {
+        if (isTransformRelated || (endNum || endNum === 0) && (startNum || startNum === 0) && !_complexExp.test(endValue) && p in style) {
           startUnit = (startValue + "").substr((startNum + "").length);
           endNum || (endNum = 0);
           endUnit = getUnit(endValue) || (p in _config.units ? _config.units[p] : startUnit);
           startUnit !== endUnit && (startNum = _convertToUnit(target, p, startValue, endUnit));
-          this._pt = new PropTween(this._pt, isTransformRelated ? cache2 : style2, p, startNum, (relative ? _parseRelative(startNum, relative + endNum) : endNum) - startNum, !isTransformRelated && (endUnit === "px" || p === "zIndex") && vars.autoRound !== false ? _renderRoundedCSSProp : _renderCSSProp);
+          this._pt = new PropTween(this._pt, isTransformRelated ? cache2 : style, p, startNum, (relative ? _parseRelative(startNum, relative + endNum) : endNum) - startNum, !isTransformRelated && (endUnit === "px" || p === "zIndex") && vars.autoRound !== false ? _renderRoundedCSSProp : _renderCSSProp);
           this._pt.u = endUnit || 0;
           if (startUnit !== endUnit && endUnit !== "%") {
             this._pt.b = startValue;
             this._pt.r = _renderCSSPropWithBeginning;
           }
-        } else if (!(p in style2)) {
+        } else if (!(p in style)) {
           if (p in target) {
             this.add(target, p, startValue || target[p], relative ? relative + endValue : endValue, index2, targets);
           } else if (p !== "parseTransform") {
@@ -18435,7 +18393,7 @@ var CSSPlugin = {
         } else {
           _tweenComplexCSSString.call(this, target, p, startValue, relative ? relative + endValue : endValue);
         }
-        isTransformRelated || (p in style2 ? inlineProps.push(p, 0, style2[p]) : inlineProps.push(p, 1, startValue || target[p]));
+        isTransformRelated || (p in style ? inlineProps.push(p, 0, style[p]) : inlineProps.push(p, 1, startValue || target[p]));
         props.push(p);
       }
     }
@@ -19347,22 +19305,22 @@ var gsap, _coreInitted, _win, _doc, _docEl, _body, _root, _resizeDelay, _toArray
   }
 }, _capsExp = /([A-Z])/g, _setState = function _setState2(state) {
   if (state) {
-    var style2 = state.t.style, l = state.length, i = 0, p, value;
+    var style = state.t.style, l = state.length, i = 0, p, value;
     (state.t._gsap || gsap.core.getCache(state.t)).uncache = 1;
     for (; i < l; i += 2) {
       value = state[i + 1];
       p = state[i];
       if (value) {
-        style2[p] = value;
-      } else if (style2[p]) {
-        style2.removeProperty(p.replace(_capsExp, "-$1").toLowerCase());
+        style[p] = value;
+      } else if (style[p]) {
+        style.removeProperty(p.replace(_capsExp, "-$1").toLowerCase());
       }
     }
   }
 }, _getState = function _getState2(element) {
-  var l = _stateProps.length, style2 = element.style, state = [], i = 0;
+  var l = _stateProps.length, style = element.style, state = [], i = 0;
   for (; i < l; i++) {
-    state.push(_stateProps[i], style2[_stateProps[i]]);
+    state.push(_stateProps[i], style[_stateProps[i]]);
   }
   state.t = element;
   return state;
@@ -19429,19 +19387,19 @@ var gsap, _coreInitted, _win, _doc, _docEl, _body, _root, _resizeDelay, _toArray
   return containerAnimation ? value : Math.round(value);
 }, _prefixExp = /(webkit|moz|length|cssText|inset)/i, _reparent = function _reparent2(element, parent2, top, left) {
   if (element.parentNode !== parent2) {
-    var style2 = element.style, p, cs;
+    var style = element.style, p, cs;
     if (parent2 === _body) {
-      element._stOrig = style2.cssText;
+      element._stOrig = style.cssText;
       cs = _getComputedStyle(element);
       for (p in cs) {
-        if (!+p && !_prefixExp.test(p) && cs[p] && typeof style2[p] === "string" && p !== "0") {
-          style2[p] = cs[p];
+        if (!+p && !_prefixExp.test(p) && cs[p] && typeof style[p] === "string" && p !== "0") {
+          style[p] = cs[p];
         }
       }
-      style2.top = top;
-      style2.left = left;
+      style.top = top;
+      style.left = left;
     } else {
-      style2.cssText = element._stOrig;
+      style.cssText = element._stOrig;
     }
     gsap.core.getCache(element).uncache = 1;
     parent2.appendChild(element);
@@ -20937,514 +20895,15 @@ class Lenis {
     this.rootElement.className = this.rootElement.className.replace(/lenis(-\w+)?/g, "").trim();
   }
 }
-const lenis = new Lenis();
-lenis.on("scroll", (e) => {
-  console.log(e);
-});
-lenis.on("scroll", ScrollTrigger.update);
-gsapWithCSS.ticker.add((time) => {
-  lenis.raf(time * 1e3);
-});
-gsapWithCSS.ticker.lagSmoothing(0);
-gsapWithCSS.registerPlugin(ScrollTrigger);
-function initTricksWords() {
-  var spanWord = document.getElementsByClassName("span-lines");
-  for (var i = 0; i < spanWord.length; i++) {
-    var wordWrap = spanWord.item(i);
-    wordWrap.innerHTML = wordWrap.innerHTML.replace(
-      /(^|<\/?[^>]+>|\s+)([^\s<]+)/g,
-      '$1<span class="span-line"><span class="span-line-inner">$2</span></span>'
-    );
-  }
-}
-function initTricksWordsSolo() {
-  var spanWord = document.getElementsByClassName("line-animate");
-  for (var i = 0; i < spanWord.length; i++) {
-    var wordWrap = spanWord.item(i);
-    wordWrap.innerHTML = wordWrap.innerHTML.replace(
-      /(^|<\/?[^>]+>|\s+)([^\s<]+)/g,
-      '$1<span class="line"><span class="line-inner">$2</span></span>'
-    );
-  }
-}
-initTricksWords();
-initTricksWordsSolo();
-const tl = gsapWithCSS.timeline({ paused: true });
-const animateOpenNav = () => {
-  tl.fromTo(
-    "#js-modal-menu",
-    { autoAlpha: 0 },
-    {
-      duration: 0.1,
-      autoAlpha: 1,
-      delay: 0
-    }
-  );
+export {
+  Autoplay as A,
+  IMask as I,
+  Lenis as L,
+  Navigation as N,
+  Pagination as P,
+  ScrollTrigger as S,
+  Swiper as a,
+  axios$1 as b,
+  freeMode as f,
+  gsapWithCSS as g
 };
-const openNav = () => {
-  animateOpenNav();
-  const navBtn = document.getElementById("menu-toggle-btn");
-  const headerMenu = document.getElementById("header__menu");
-  const headerTel = document.getElementById("header__tel");
-  const header = document.querySelector(".header");
-  navBtn.addEventListener("click", function(e) {
-    document.body.classList.toggle("_lock");
-    navBtn.classList.toggle("active");
-    headerMenu.classList.toggle("active");
-    headerTel.classList.toggle("active");
-    header.classList.toggle("active");
-    toggleMenuText();
-    if (navBtn.classList.contains("active")) {
-      tl.play();
-    } else {
-      tl.reverse();
-    }
-  });
-  function toggleMenuText() {
-    var menuText = navBtn.querySelector("span");
-    if (menuText.textContent === "Меню") {
-      menuText.textContent = "Закрыть";
-    } else {
-      menuText.textContent = "Меню";
-    }
-  }
-};
-openNav();
-function relocateButtons() {
-  const width = window.innerWidth;
-  const serviceItems = document.querySelectorAll(".service__item");
-  serviceItems.forEach((serviceItem) => {
-    const btnMain = serviceItem.querySelector(".btn-main");
-    if (!btnMain) {
-      console.error("Кнопка btn-main не найдена.");
-      return;
-    }
-    if (width <= 1030) {
-      serviceItem.appendChild(btnMain);
-    } else {
-      const serviceBox = serviceItem.querySelector(".service__box");
-      if (serviceBox && !serviceBox.contains(btnMain)) {
-        serviceBox.appendChild(btnMain);
-      }
-    }
-  });
-}
-window.addEventListener("DOMContentLoaded", relocateButtons);
-window.addEventListener("resize", relocateButtons);
-new Swiper(".shorts__swiper", {
-  loop: false,
-  centeredSlides: false,
-  modules: [Navigation, Pagination],
-  navigation: {
-    nextEl: ".about-next",
-    prevEl: ".about-prev"
-  },
-  breakpoints: {
-    1: {
-      slidesPerView: 1.2,
-      centeredSlides: false,
-      spaceBetween: 10
-    },
-    720: {
-      slidesPerView: 2,
-      spaceBetween: 10
-    },
-    968: {
-      slidesPerView: 2,
-      centeredSlides: false,
-      spaceBetween: 30
-    },
-    1150: {
-      slidesPerView: 4,
-      spaceBetween: 30,
-      centeredSlides: false
-    }
-  }
-});
-const shorts = document.querySelectorAll(".shorts-slide");
-let currentVideo = null;
-let currentPlayButton = null;
-shorts.forEach(function(slide2) {
-  const videoblock = slide2.querySelector(".shorts-block__video");
-  const video = slide2.querySelector(".shorts-block-video");
-  const playButton = slide2.querySelector(".shorts-block__btn");
-  playButton.addEventListener("click", function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleVideoPlayback(video, playButton);
-  });
-  videoblock.addEventListener("click", function(e) {
-    e.preventDefault();
-    toggleVideoPlayback(video, playButton);
-  });
-  video.addEventListener("fullscreenchange", function() {
-    if (isVideoInFullscreen(video)) {
-      video.classList.add("active");
-      video.classList.add("top-layer");
-    } else {
-      video.classList.remove("active");
-      video.classList.remove("top-layer");
-    }
-  });
-  function isVideoInFullscreen(videoElement) {
-    return document.fullscreenElement === videoElement || document.webkitFullscreenElement === videoElement || document.mozFullScreenElement === videoElement;
-  }
-  function toggleVideoPlayback(video2, playButton2) {
-    if (currentVideo && currentVideo !== video2) {
-      currentVideo.pause();
-      currentVideo.controls = false;
-      currentVideo.classList.remove("active");
-      currentVideo.classList.remove("top-layer");
-      if (currentPlayButton) {
-        currentPlayButton.classList.remove("active");
-      }
-    }
-    currentVideo = video2;
-    currentPlayButton = playButton2;
-    if (video2.paused) {
-      video2.play();
-      video2.controls = true;
-      if (!isVideoInFullscreen(video2)) {
-        video2.classList.add("active");
-        video2.classList.remove("top-layer");
-      } else {
-        video2.classList.add("top-layer");
-      }
-      playButton2.classList.add("active");
-    } else {
-      video2.pause();
-      if (!isVideoInFullscreen(video2)) {
-        video2.classList.remove("active");
-        video2.classList.remove("top-layer");
-      }
-      playButton2.classList.remove("active");
-    }
-  }
-});
-new Swiper(".clients-swiper", {
-  slidesPerView: 5,
-  spaceBetween: 5,
-  loopedSlides: 12,
-  loop: true,
-  modules: [Autoplay, freeMode],
-  speed: 8e3,
-  freeMode: {
-    enabled: false,
-    momentumBounce: true,
-    freeModeMomentumRatio: 1222
-  },
-  autoplay: {
-    delay: 0,
-    disableOnInteraction: false
-  }
-});
-const observer = new IntersectionObserver((entries, observer2) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      gsapWithCSS.to(entry.target, {
-        y: "-2%",
-        duration: 0.45
-        // ease: "power1.in",
-      });
-      observer2.unobserve(entry.target);
-    }
-  });
-});
-const targetElements = document.querySelectorAll(".span-line-inner");
-targetElements.forEach((targetElement) => {
-  observer.observe(targetElement);
-});
-function observeElements(elements, delay) {
-  const observer2 = new IntersectionObserver((entries, observer3) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        gsapWithCSS.from(entry.target, {
-          y: "2em",
-          opacity: 0,
-          duration: 0.5,
-          delay
-        });
-        observer3.unobserve(entry.target);
-      }
-    });
-  });
-  elements.forEach((targetElement) => {
-    observer2.observe(targetElement);
-  });
-}
-const targetElementsDownUpAnima = document.querySelectorAll(".anima");
-observeElements(targetElementsDownUpAnima, 0.2);
-const targetElementsDownUpAnima03 = document.querySelectorAll(".anima-03");
-observeElements(targetElementsDownUpAnima03, 0.3);
-const targetElementsDownUpAnima04 = document.querySelectorAll(".anima-04");
-observeElements(targetElementsDownUpAnima04, 0.4);
-const targetElementsDownUpAnima05 = document.querySelectorAll(".anima-05");
-observeElements(targetElementsDownUpAnima05, 0.5);
-const observerLineAnima = new IntersectionObserver((entries, observer2) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.style.setProperty("--width", "100%");
-      observer2.unobserve(entry.target);
-    }
-  });
-});
-const targetElementsLineAnima = document.querySelectorAll(".animaLine");
-targetElementsLineAnima.forEach((targetElement) => {
-  observerLineAnima.observe(targetElement);
-});
-const targetElementsLineTest = document.querySelectorAll(".section-line");
-targetElementsLineTest.forEach((targetElement) => {
-  observerLineAnima.observe(targetElement);
-});
-const targetElementsLineFooter = document.querySelectorAll(".footer-line");
-targetElementsLineFooter.forEach((targetElement) => {
-  observerLineAnima.observe(targetElement);
-});
-gsapWithCSS.utils.toArray(".image-parallax").forEach((container) => {
-  const img = container.querySelector("img");
-  const tl2 = gsapWithCSS.timeline({
-    scrollTrigger: {
-      trigger: container,
-      scrub: true,
-      pin: false
-    }
-  });
-  tl2.fromTo(
-    img,
-    {
-      yPercent: -15,
-      ease: "none"
-    },
-    {
-      yPercent: 15,
-      ease: "none"
-    }
-  );
-});
-gsapWithCSS.utils.toArray(".about-parallax").forEach((container) => {
-  const img = container.querySelector("img");
-  const tl2 = gsapWithCSS.timeline({
-    scrollTrigger: {
-      trigger: container,
-      scrub: true,
-      pin: false
-    }
-  });
-  tl2.fromTo(
-    img,
-    {
-      yPercent: -10,
-      ease: "none"
-    },
-    {
-      yPercent: 40,
-      ease: "none"
-    }
-  );
-});
-gsapWithCSS.utils.toArray(".equipment-parallax").forEach((container) => {
-  const img = container.querySelector("img");
-  const tl2 = gsapWithCSS.timeline({
-    scrollTrigger: {
-      trigger: container,
-      scrub: true,
-      pin: false
-    }
-  });
-  tl2.fromTo(
-    img,
-    {
-      yPercent: -10,
-      ease: "none"
-    },
-    {
-      yPercent: 15,
-      ease: "none"
-    }
-  );
-});
-const modalMainBody = document.querySelector(".modal-main__body");
-const modalMainButtons = document.querySelectorAll(".js-open-modal-main");
-const modalMainContent = document.querySelector(".modal-main__content");
-const modalMainClose = document.querySelector(".modal-main__close");
-const errorBlock = document.querySelectorAll(".js-error");
-if (modalMainButtons) {
-  modalMainButtons.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      document.body.classList.add("_lock");
-      modalMainBody.classList.add("_active");
-      modalMainContent.classList.add("_active");
-    });
-  });
-}
-if (modalMainClose) {
-  console.log(errorBlock);
-  modalMainClose.addEventListener("click", (e) => {
-    document.body.classList.remove("_lock");
-    modalMainBody.classList.remove("_active");
-    modalMainContent.classList.remove("_active");
-    errorBlock.forEach((item) => {
-      item.classList.remove("_active");
-    });
-  });
-}
-const sucesBody = document.querySelector(".suces__body");
-const sucesContent = document.querySelector(".suces__content");
-const sucesClose = document.querySelector(".suces__close");
-function sucesOpen() {
-  sucesBody.classList.add("_active");
-  sucesContent.classList.add("_active");
-  document.body.classList.add("_lock");
-}
-function sucesCloseHandler() {
-  sucesBody.classList.remove("_active");
-  sucesContent.classList.remove("_active");
-  document.body.classList.remove("_lock");
-}
-if (sucesClose) {
-  sucesClose.addEventListener("click", sucesCloseHandler);
-}
-document.addEventListener("click", function(e) {
-  const isClickInsideSuces = sucesContent.contains(e.target) || e.target === sucesClose;
-  if (!isClickInsideSuces) {
-    sucesCloseHandler();
-  }
-});
-let phones = document.querySelectorAll('[data-mask="phone"]');
-phones.forEach(function(element) {
-  new IMask(element, {
-    mask: "+{7}(000)000-00-00"
-  });
-});
-function validatePhone(phone) {
-  const cleanedPhone = phone.replace(/\D/g, "");
-  console.log(new String(cleanedPhone).length);
-  console.log(cleanedPhone.length === 11, "partial");
-  if (cleanedPhone.length === 11) {
-    return true;
-  } else {
-    return false;
-  }
-}
-function validateEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-function validateText(text2) {
-  const trimmedText = text2.trim();
-  if (trimmedText.length >= 2) {
-    return true;
-  } else {
-    return false;
-  }
-}
-const validate = (input) => {
-  const dataType = input.getAttribute("data-type");
-  let res = true;
-  switch (dataType) {
-    case "phone":
-      res = validatePhone(input.value);
-      break;
-    case "text":
-      res = validateText(input.value);
-      break;
-    case "email":
-      res = validateEmail(input.value);
-      break;
-  }
-  console.log(input, res, dataType);
-  return res;
-};
-let forms = document.querySelectorAll(".js-form");
-console.log(forms);
-forms.forEach((form) => {
-  let formButton = form.querySelector(".js-form-submit");
-  console.log(formButton);
-  if (formButton) {
-    formButton.addEventListener("click", (e) => {
-      e.preventDefault();
-      formButton.disabled = true;
-      const inputs = form.querySelectorAll("input, textarea");
-      const method = form.method;
-      const action = form.action;
-      let isValidated = true;
-      let formData = [];
-      inputs.forEach((input) => {
-        formData.push({
-          name: input.name,
-          value: input.value,
-          isValidate: validate(input)
-        });
-      });
-      formData.forEach((item) => {
-        const input = form.querySelector(`[name="${item.name}"]`);
-        const wrapper = input.parentNode;
-        const errorBlock2 = wrapper.querySelector(".js-error");
-        if (!item.isValidate) {
-          isValidated = false;
-          errorBlock2.classList.add("_active");
-          wrapper.classList.add("_active");
-        } else {
-          errorBlock2.classList.remove("_active");
-          wrapper.classList.remove("_active");
-        }
-      });
-      if (!isValidated) {
-        formButton.disabled = false;
-        return false;
-      }
-      axios$1({
-        method,
-        url: action,
-        data: formData
-      }).then((response) => {
-        sucesOpen();
-        console.log("success");
-        formButton.disabled = false;
-        document.body.classList.remove("_lock");
-        modalMainBody.classList.remove("_active");
-        modalMainContent.classList.remove("_active");
-        errorBlock.forEach((item) => {
-          item.classList.remove("_active");
-        });
-        inputs.forEach((input) => {
-          input.value = "";
-        });
-      }).catch((error2) => {
-        console.error(error2);
-        sucesOpen();
-        document.body.classList.remove("_lock");
-        modalMainBody.classList.remove("_active");
-        modalMainContent.classList.remove("_active");
-        errorBlock.forEach((item) => {
-          item.classList.remove("_active");
-        });
-        formButton.disabled = false;
-        inputs.forEach((input) => {
-          input.value = "";
-        });
-      });
-    });
-  }
-});
-const menuLinks = document.querySelectorAll("[data-goto]");
-if (menuLinks.length > 0) {
-  let onMenuLinkClick = function(e) {
-    const menuLink = e.target;
-    if (menuLink.dataset.goto && document.querySelector(menuLink.dataset.goto)) {
-      const gotoBlock = document.querySelector(menuLink.dataset.goto);
-      console.log(gotoBlock);
-      const gotoBlockValue = gotoBlock.getBoundingClientRect().top + window.scrollY;
-      console.log(gotoBlockValue);
-      window.scrollTo({
-        top: gotoBlockValue,
-        behavior: "smooth"
-      });
-      e.preventDefault(e);
-    }
-  };
-  var onMenuLinkClick2 = onMenuLinkClick;
-  menuLinks.forEach((menuLink) => {
-    menuLink.addEventListener("click", onMenuLinkClick);
-  });
-}
