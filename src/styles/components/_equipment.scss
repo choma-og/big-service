@@ -1,0 +1,129 @@
+.equipment {
+  &__container {
+
+  }
+  &__section-info {
+    @media (max-width:900px) {
+      flex-direction: column;
+      gap: 30px;
+      align-items: flex-start !important;
+    }
+    @media (max-width:650px) {
+      padding-bottom: 40px;
+    }
+  }
+  &__title {
+    max-width: 600px;
+    @media (max-width:650px) {
+      max-width: 320px;
+    }
+  }
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    row-gap: 20px;
+    @media (max-width:1200px) {
+      gap: 14px;
+    }
+    @media (max-width:1030px) {
+      grid-template-columns: repeat(1,1fr);
+      gap: 60px;
+    }
+  }
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    min-height: 380px;
+    @media (max-width:650px) {
+      min-height: 370px;
+    }
+  }
+  &__heading {
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 120%;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 18px;
+    z-index: 2;
+    max-width: 400px;
+    @media (max-width:1200px) {
+      font-size: 26px;
+      padding-bottom: 0px;
+    }
+    @media (max-width:650px) {
+      font-size: 22px;
+    }
+  }
+  &__sublist {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: relative;
+    z-index: 2;
+    @media (max-width:1030px) {
+      gap: 14px;
+    }
+    @media (max-width:650px) {
+      gap: 10px;
+    }
+  }
+  &__subitem {
+
+  }
+  &__sublink {
+    font-weight: 400;
+    font-size: 22px;
+    color: white;
+    line-height: 120%;
+    @media (max-width:1030px) {
+      font-size: 18px;
+    }
+    @media (max-width:650px) {
+      font-size: 16px;
+    }
+  }
+  &__img {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    width: 82%;
+    @media (max-width:1030px) {
+      height: 100%;
+      width: 96%;
+      left: 20px;
+    }
+    @media (max-width:650px) {
+      height: 350px !important;
+      top: 15px;
+      left: 10px;
+    }
+  }
+  &__image {
+    position: relative;
+    height: 320px;
+    padding-top: 60%;
+    @media (max-width:650px) {
+      height: 400px;
+    }
+    @media (max-width:1030px) {
+      padding-top: 45%;
+      height: 100%;
+    }
+    img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      filter: brightness(0.6);
+    }
+  }
+}
+.equipment__section-info {
+  align-items: flex-end;
+}

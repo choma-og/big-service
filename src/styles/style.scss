@@ -1,0 +1,27 @@
+// базовые подключения
+@import "./settings";
+@import "./mixins";
+@import "./fonts";
+@import "./vars";
+
+// компоненты страницы
+
+// подключения компонентов страницы (большие компоненты)
+@import "./components/header";
+@import "./components/hero";
+@import "./components/work";
+@import "./components/service";
+@import "./components/equipment";
+@import "./components/repairs";
+@import "./components/shorts";
+@import "./components/clients";
+@import "./components/regions";
+@import "./components/contacts";
+@import "./components/modal-menu";
+@import "./components/succes";
+@import "./components/modal-main";
+@import "./components/footer";
+
+
+// подключения компонентов страницы (маленькие компоненты)
+//detail
